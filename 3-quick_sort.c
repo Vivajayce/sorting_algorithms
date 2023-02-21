@@ -1,66 +1,77 @@
 #include "sort.h"
-#include <stdio.h>
-
-size_t swap(int *array, size_t size, size_t idx1, size_t idx2);
-void partition(int *array, size_t size, size_t left, size_t right);
+/**
+ * swap_int - swaps the values of two integers
+ * @a: integer a
+ * @b: integer b
+ */
+void swap_int(int *a, int *b)
+{
+int a1;
+a1 = *a;
+*a = *b;
+*b = a1;
+}
 
 /**
- * quick_sort - Sort an array of integers in ascending order
- * Description: Use Hoare's partition scheme quicksort
- * pivot should always be the last element of the partition being sorted.
- * You're expected to print the array after each time you swap 2 elements.
+ * pivot - swaps values until all lower than 'end' are at lower index points
+ * @array: pointer to an array of integers
+ * @size: the number of elements in the array
+ * @begin: the lowest index to sort from
+ * @end: the highest index to sort to
+ * Return: the new index of the pivot value.
+ */
+size_t pivot(int *array, size_t size, size_t begin, size_t end)
+{
+size_t i, cursor = begin;
+int pivot_val = array[end];
+for (i = begin; i <= end; i++)
+{
+if (array[i] < pivot_val)
+{
+if (cursor != i)
+{
+swap_int(&array[i], &array[cursor]);
+print_array(array, size);
+}
+cursor++;
+}
+}
+if (end != cursor)
+{
+swap_int(&array[end], &array[cursor]);
+print_array(array, size);
+}
+return (cursor);
+}
+
+/**
+ * qs_recur - recursively calls itself on shorter sections of the array
+ * @array: pointer to an array of integers
+ * @size: the number of elements in the array
+ * @begin: the lowest index to sort from
+ * @end: the highest index to sort to
+ */
+void qs_recur(int *array, size_t size, size_t begin, size_t end)
+{
+size_t pivot_idx;
+if (begin < end)
+{
+pivot_idx = pivot(array, size, begin, end);
+if (pivot_idx > begin && pivot_idx <= end)
+qs_recur(array, size, begin, pivot_idx - 1);
+if (pivot_idx >= begin && pivot_idx < end)
+qs_recur(array, size, pivot_idx + 1, end);
+}
+}
+
+/**
+ * quick_sort - sorts an array of integers in ascending order by recursively
+ * @array: pointer to an array of integers
+ * @size: the number of elements in the array
  */
 void quick_sort(int *array, size_t size)
 {
-size_t lw, rw;
-lw = 0;
-rw = size - 1;
-partition(array, size, lw, rw);
-}
-
-void partition(int *array, size_t size, size_t left, size_t right)
-{
-size_t i, j, pivot;
-printf("?");
-if (left >= right)
-{
-printf("Hi");
+if (array == NULL || size < 2)
 return;
-}
-
-pivot = right;
-while (array[i] < array[pivot] && i < pivot)
-i++;
-if (i < right)
-{
-printf("A");
-pivot = swap(array, size, i, pivot);
-j = right - 1;
-while (i < j)
-{
-if (array[j] < array[pivot])
-{
-swap(array, size, i, j);
-i++;
-}
-j--;
-}
-}
-else
-pivot = i--;
-printf("B");
-swap(array, size, pivot, i - 1);
-
-partition(array, size, left, i - 2);
-partition(array, size, i, right);
-}
-
-size_t swap(int *array, size_t size, size_t idx1, size_t idx2)
-{
-int tmp;
-tmp = array[idx1];
-array[idx1] = array[idx2];
-array[idx2] = tmp;
-print_array(array, size);
-return (idx1);
+qs_recur(array, size, 0, size - 1);
 }
