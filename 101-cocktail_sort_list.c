@@ -1,89 +1,76 @@
 #include "sort.h"
-#include <stdio.h>
 
 /**
- * swap_list - swaps 2 nodes in a doubly linked list of ints
- * @temp2: the node to swap with it's prior
- */
-void swap_list(listint_t *temp2)
-{
-if (temp2->next == NULL &&
-temp2->prev->prev == NULL)
-{ /* 2 element list */
-temp2->prev->next = NULL;
-temp2->prev->prev = temp2;
-temp2->next = temp2->prev;
-temp2->prev = NULL;
-}
-else if (temp2->next == NULL)
-{ /* end of list */
-temp2->prev->prev->next = temp2;
-temp2->next = temp2->prev;
-temp2->prev = temp2->prev->prev;
-temp2->next->prev = temp2;
-temp2->next->next = NULL;
-}
-else if (temp2->prev->prev == NULL)
-{ /* beginning of list */
-temp2->prev->next = temp2->next;
-temp2->next->prev = temp2->prev;
-temp2->next = temp2->prev;
-temp2->prev = NULL;
-temp2->next->prev = temp2;
-}
-else
-{ /* mid-list, no NULL in sight */
-temp2->prev->next = temp2->next;
-temp2->next->prev = temp2->prev;
-temp2->next = temp2->prev;
-temp2->prev->prev->next = temp2;
-temp2->prev = temp2->prev->prev;
-temp2->next->prev = temp2;
-}
-}
-
-/**
- * cocktail_sort_list - sorts a 2x linked list of integers in ascending order
- * @list: A doubly linked list
+ * cocktail_sort_list - Sorts a doubly linked list
+ * of integers in ascending order using the
+ * Cocktail Shaker sort algorithm.
+ * @list: The doubly linked list to apply the cocktail sort
+ * Return: Nothing!
  */
 void cocktail_sort_list(listint_t **list)
-{ listint_t *temp;
-size_t i, length, flag = 0;
-if (list == NULL || (*list) == NULL || (*list)->next == NULL)
+{
+listint_t *curr = NULL, *left_limit = NULL, *right_limit = NULL;
+int cycle_type = INCREMENT;
+if (!list || !(*list) || !(*list)->next)
 return;
-temp = *list;
-for (length = 0; temp->next != NULL; length++)
-temp = temp->next;
-temp = *list;
-while (length > 0)
-{	flag = 0;
-for (i = 0; i < length; i++)
+curr = *list;
+left_limit = curr;
+right_limit = get_dlistint_lelem(*list);
+while (left_limit != right_limit)
 {
-temp = temp->next;
-if (temp->prev->n > temp->n)
+if (curr->n == curr->next->n)
+break;
+else if (curr->n > curr->next->n && cycle_type == INCREMENT)
+swap_nodes(list, curr), print_list(*list);
+else if (curr->next->n < curr->n && cycle_type == DECREMENT)
+swap_nodes(list, curr), curr = curr->prev, print_list(*list);
+else if (cycle_type == INCREMENT)
+curr = curr->next;
+else if (cycle_type == DECREMENT)
+curr = curr->prev;
+if (cycle_type == DECREMENT && curr->next == left_limit)
 {
-swap_list(temp);
-print_list(*list);
-temp = temp->next;
-flag = 1;
+cycle_type = INCREMENT;
+curr = curr->next;
+}
+if (cycle_type == INCREMENT && curr->prev == right_limit)
+{
+right_limit = right_limit->prev;
+cycle_type = DECREMENT;
+curr = curr->prev;
 }
 }
-if (flag == 0)
-return;
-flag = 0;
-for (i = 0; i < length; i++)
+}
+
+/**
+ * swap_nodes - Swap two nodes of a doubly linked list
+ * @list: The double linked lists that contains the nodes
+ * @node: The node to swap with the next node
+ * Return: Nothing!
+ */
+void swap_nodes(listint_t **list, listint_t *node)
 {
-if (temp->prev->n <= temp->n)
-temp = temp->prev;
-else if (temp->prev->n > temp->n)
+node->next->prev = node->prev;
+if (node->next->prev)
+node->prev->next = node->next;
+else
+*list = node->next;
+node->prev = node->next;
+node->next = node->next->next;
+node->prev->next = node;
+if (node->next)
+node->next->prev = node;
+}
+
+/**
+ * get_dlistint_lelem - Counts the number of elements in a doubly linked list
+ * @h: The double linked list to count
+ * Return: Number of elements in the doubly linked list
+ */
+listint_t *get_dlistint_lelem(listint_t *h)
 {
-swap_list(temp);
-if (temp->prev == NULL)
-*list = temp;
-print_list(*list);
-flag = 1;
-}		}
-if (flag == 0)
-return;
-length--;
-}}
+listint_t *curr = h;
+while (curr->next != NULL)
+curr = curr->next;
+return (curr);
+}
