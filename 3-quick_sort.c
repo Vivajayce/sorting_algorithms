@@ -1,77 +1,88 @@
 #include "sort.h"
+
 /**
- * swap_int - swaps the values of two integers
- * @a: integer a
- * @b: integer b
+ * _swap - swaps two values in an array
+ *
+ * @array: data to sort
+ * @i: first value
+ * @j: second value
+ *
+ * Return: No Return
  */
-void swap_int(int *a, int *b)
+void _swap(int *array, int i, int j)
 {
-int a1;
-a1 = *a;
-*a = *b;
-*b = a1;
+	int tmp;
+
+	tmp = array[i];
+	array[i] = array[j];
+	array[j] = tmp;
 }
 
 /**
- * pivot - swaps values until all lower than 'end' are at lower index points
- * @array: pointer to an array of integers
- * @size: the number of elements in the array
- * @begin: the lowest index to sort from
- * @end: the highest index to sort to
- * Return: the new index of the pivot value.
+ * partition - sorts a partition of data in relation to a pivot
+ *
+ * @array: data to sort
+ * @min: Left wall
+ * @max: right wall
+ * @size: size of data
+ *
+ * Return: New Pivot
  */
-size_t pivot(int *array, size_t size, size_t begin, size_t end)
+int partition(int *array, int min, int max, size_t size)
 {
-size_t i, cursor = begin;
-int pivot_val = array[end];
-for (i = begin; i <= end; i++)
-{
-if (array[i] < pivot_val)
-{
-if (cursor != i)
-{
-swap_int(&array[i], &array[cursor]);
-print_array(array, size);
-}
-cursor++;
-}
-}
-if (end != cursor)
-{
-swap_int(&array[end], &array[cursor]);
-print_array(array, size);
-}
-return (cursor);
+	int i, j, pivot = array[max];
+
+	for (i = min, j = max; 1; i++, j--)
+	{
+		while (array[i] < pivot)
+			i++;
+
+		while (array[j] > pivot)
+			j--;
+
+		if (i >= j)
+			return (i);
+		_swap(array, i, j);
+		print_array(array, size);
+	}
 }
 
 /**
- * qs_recur - recursively calls itself on shorter sections of the array
- * @array: pointer to an array of integers
- * @size: the number of elements in the array
- * @begin: the lowest index to sort from
- * @end: the highest index to sort to
+ * quicksort -  sorts an array of integers in ascending order using the
+ * Quick sort algorithm Lomuto partition scheme
+ *
+ * @array: data to sort
+ * @min: Left wall
+ * @max: right wall
+ * @size: size of data
+ *
+ * Return: No Return
  */
-void qs_recur(int *array, size_t size, size_t begin, size_t end)
+void quicksort(int *array, int min, int max, size_t size)
 {
-size_t pivot_idx;
-if (begin < end)
-{
-pivot_idx = pivot(array, size, begin, end);
-if (pivot_idx > begin && pivot_idx <= end)
-qs_recur(array, size, begin, pivot_idx - 1);
-if (pivot_idx >= begin && pivot_idx < end)
-qs_recur(array, size, pivot_idx + 1, end);
-}
+	int p;
+
+	if (min < max)
+	{
+		p = partition(array, min, max, size);
+		quicksort(array, min, p - 1, size);
+		quicksort(array, p, max, size);
+	}
 }
 
 /**
- * quick_sort - sorts an array of integers in ascending order by recursively
- * @array: pointer to an array of integers
- * @size: the number of elements in the array
+ * quick_sort_hoare -  sorts an array of integers in ascending order using the
+ * Quick sort algorithm Hoare partition scheme
+ *
+ * @array: data to sort
+ * @size: size of data
+ *
+ * Return: No Return
  */
-void quick_sort(int *array, size_t size)
+void quick_sort_hoare(int *array, size_t size)
 {
-if (array == NULL || size < 2)
-return;
-qs_recur(array, size, 0, size - 1);
+	if (!array || size < 2)
+		return;
+
+	quicksort(array, 0, size - 1, size);
 }
